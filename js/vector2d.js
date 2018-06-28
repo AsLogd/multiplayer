@@ -10,7 +10,7 @@ class Vector2D{
     }
 
     sum(b){
-        this.x = b.x
-        this.y = b.y
+        this.x += b.x
+        this.y += b.y
     }
 }

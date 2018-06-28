@@ -7,9 +7,12 @@ class Player{
         mapping: {key:action}
     */
     constructor(world, pos, color){
+        this.JUMP_SPEED = 3
+        this.SPEED = 2
         this.world = world
         this.color = color
         this.pos = pos
+        this.grounded = false
         this.vel = new Vector2D(0, 0)
         this.size = new Vector2D(20, 20)
         this.keyboard = {}
@@ -44,17 +47,31 @@ class Player{
     update(deltaTime){
         let initialPosition = this.pos
         this.vel.y += this.world.gravity * deltaTime
-        this.pos.y = this.pos.y + this.vel.y
 
+        if(this.keyboard.jump && this.grounded){
+            this.vel.y = -this.JUMP_SPEED
+            this.keyboard.jump = false
+        }
+        if(this.keyboard.left)
+            this.vel.x = -this.SPEED
+        if(this.keyboard.right)
+            this.vel.x = this.SPEED
+        if(this.keyboard.down)
+            this.vel.y = this.SPEED
+
+        this.grounded = false
         for(let wall of this.world.walls)
         {
             if(this.collides(wall))
             {
-                this.vel.y = 0
-                this.pos.y = wall.pos.y-this.size.y/2
+                this.grounded = true
+                this.vel.y = Math.min(this.vel.y,0)
+                this.pos.y = (wall.pos.y-wall.size.y/2)-this.size.y/2
             }
         }
-        
+
+        this.pos.sum(this.vel)
+
     }
 
     collides(b){

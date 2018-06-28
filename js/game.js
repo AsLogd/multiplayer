@@ -11,7 +11,7 @@ class Game{
         this.canvas.height = window.innerHeight
         document.body.appendChild(this.canvas)
         this.ctx = this.canvas.getContext('2d')
-        this.world = new World(0.5, [
+        this.world = new World(1.5, [
             new Wall(
                 'black', 
                 new Vector2D(300,300),
