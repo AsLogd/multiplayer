@@ -18,6 +18,13 @@ class Vector2D{
         this.x -= b.x
         this.y -= b.y
     }
+    mul(escalar){
+        this.x *= escalar
+        this.y *= escalar
+    }
+    copy(){
+        return new Vector2D(this.x, this.y)
+    }
 
     static dot(a, b){
         return a.x*b.x + a.y*b.y

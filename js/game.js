@@ -28,13 +28,23 @@ class Game{
                 new Vector2D(50, 10)
             )
         ])
-        this.players = [
+        this.players = []
+        this.players.push(
             new Player(
                 this.world,
                 new Vector2D(300,200), 
-                "red"
+                "red",
+                this.players
             )
-        ]
+        )
+        this.players.push(
+            new Player(
+                this.world,
+                new Vector2D(350,200), 
+                "blue",
+                this.players
+            )
+        )
         this.preTickTmstp = Date.now()
         requestAnimationFrame(()=>{
             this.tick()
