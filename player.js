@@ -1,3 +1,4 @@
+var Vector2D = require('./vector2d.js')
 class Player{
     /*
         pos : Vector2D
@@ -6,7 +7,8 @@ class Player{
         keyboard: {action:bool}
         mapping: {key:action}
     */
-    constructor(world, pos, color, players){
+    constructor(id, world, pos, color, players){
+        this.id = id
         this.JUMP_SPEED = 3
         this.SPEED = 2
         this.RANGE = 70
@@ -44,43 +46,8 @@ class Player{
             'f':'attack',
             'r':'shield'
         }
-        this.initListeners()
     }
 
-    initListeners(){
-        document.addEventListener('keydown',(ev)=>{
-            this.keyboard[this.mapping[ev.key]] = true
-        })
-        document.addEventListener('keyup',(ev)=>{
-            this.keyboard[this.mapping[ev.key]] = false
-        })
-    }
-
-    draw(ctx){
-        ctx.fillStyle = this.color
-        ctx.fillRect(
-            this.pos.x-this.size.x/2, 
-            this.pos.y-this.size.y/2, 
-            this.size.x, 
-            this.size.y
-        )
-        if(this.shielded)
-        {
-            ctx.beginPath();
-            ctx.arc(this.pos.x,this.pos.y, this.size.x+5, 0,2*Math.PI);
-            ctx.lineWidth = 5
-            ctx.strokeStyle = '#008510'
-            ctx.stroke();
-        }
-        if(this.attacking)
-        {
-            ctx.beginPath();
-            ctx.arc(this.pos.x,this.pos.y,this.size.x+5,0,2*Math.PI);
-            ctx.fillStyle = '#008510'
-            ctx.fill();
-        }
-        
-    }
 
     update(deltaTime){
         //Apply gravity
@@ -216,5 +183,28 @@ class Player{
             this.pos.y + this.size.y/2 < b.pos.y - b.size.y/2 ||
             b.pos.y + b.size.y/2 < this.pos.y - this.size.y/2)
     }
+    
+    getState(){
+        let res = {}
+        res.world = this.world
+        res.color = this.color
+        res.pos = this.pos
+        res.x = this.pos.x
+        res.y = this.pos.y
+        res.grounded = this.grounded
+        res.walled = this.walled
+        res.shielded = this.shielded
+        res.attacking = this.attacking
+        res.attackingTime = this.attackingTime
+        res.remainingShield = this.remainingShield
+        res.canAttack = this.canAttack
+        res.canJump = this.canJump
+        res.canShield = this.canShield
+        res.vel = this.vel.toObj()
+        res.size = this.size.toObj()
+        res.keyboard = this.keyboard
 
+        return res
+    }
 }
+module.exports = Player

@@ -16,5 +16,8 @@
     "url": "https://github.com/AsLogd/multiplayer/issues"
   },
   "homepage": "https://github.com/AsLogd/multiplayer#readme",
-  "dependencies": {}
+  "dependencies": {
+    "express": "^4.16.3",
+    "socketio": "^1.0.0"
+  }
 }

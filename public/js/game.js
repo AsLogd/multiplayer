@@ -28,44 +28,26 @@ class Game{
                 new Vector2D(50, 10)
             )
         ])
-        this.players = []
-        this.players.push(
-            new Player(
-                this.world,
-                new Vector2D(300,200), 
-                "red",
-                this.players
-            )
-        )
-        this.players.push(
-            new Player(
-                this.world,
-                new Vector2D(350,200), 
-                "blue",
-                this.players
-            )
-        )
+        this.myPlayer = 0
         this.preTickTmstp = Date.now()
-        requestAnimationFrame(()=>{
-            this.tick()
-        })
     }
 
-    tick(){
-        let deltaTime = (Date.now() - this.preTickTmstp)/1000
-        this.preTickTmstp = Date.now()
-        this.update(deltaTime)
+    setPlayer(player){
+        this.player = player
+    }
+
+    tick(playersData){
+        this.players = []
+        for(let d of playersData)
+        {
+            let p = new Player()
+            p.fromData(d)
+            p.players = this.players
+            this.players.push(p)
+        }
+        this.players = this.players
         this.render()
 
-        requestAnimationFrame(()=>{
-            this.tick()
-        })
-    }
-
-    update(deltaTime){
-        for(let player of this.players){
-            player.update(deltaTime)
-        }
     }
 
     render(){
