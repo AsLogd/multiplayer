@@ -1,8 +1,10 @@
-class Wall{
-    /*
-        pos : Vector2D
-        size : Vector2D
-    */
+import {Vector2D} from "./vector2d"
+
+export class Wall{
+    pos : Vector2D
+    size : Vector2D
+    color : string
+    
     constructor(color, pos, size){
         this.color = color
         this.pos = pos
@@ -22,7 +24,7 @@ class Wall{
         Returns the list of vertexes of the wall.
         Anti-Clockwise from top-right (in increasing angle order)
     */
-    getPoints(){
+    getPoints() : Vector2D[]{
         let res = []
         
         //Top left

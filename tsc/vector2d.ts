@@ -1,4 +1,7 @@
-class Vector2D{
+export class Vector2D{
+    x : number
+    y : number
+
     constructor(x, y){
         this.x = x
         this.y = y
@@ -22,15 +25,16 @@ class Vector2D{
         this.x *= escalar
         this.y *= escalar
     }
-    copy(){
+
+    copy() : Vector2D{
         return new Vector2D(this.x, this.y)
     }
 
-    static dot(a, b){
+    static dot(a, b) : number{
         return a.x*b.x + a.y*b.y
     }
 
-    static angleWithGround(a){
+    static angleWithGround(a) : number{
         let angle = Math.atan2(a.x, a.y)*(180/Math.PI)
         if(angle < 0)
             return angle*2*Math.PI

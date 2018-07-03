@@ -1,58 +1,76 @@
-class Player{
-    /*
-        pos : Vector2D
-        color : string
-        size : number
-        keyboard: {action:bool}
-        mapping: {key:action}
-    */
+import {Vector2D} from "./vector2d"
+import {World} from "./world"
+
+enum Direction{
+    'UP' = 0,
+    'LEFT',
+    'DOWN',
+    'RIGHT'
+}
+
+enum Action{
+    'JUMP',
+    'LEFT',
+    'DOWN',
+    'RIGHT',
+    'ATTACK',
+    'SHIELD'
+}
+
+export class Player{
+    pos : Vector2D
+    vel : Vector2D
+    size : Vector2D
+    players: Player[]
+    world: World
+
+    //{action:bool}
+    actions: any = {}
+    //{key:action}
+    mapping: any = {
+        'w':'jump',
+        'a':'left',
+        's':'down',
+        'd':'right',
+        'f':'attack',
+        'r':'shield'
+    }
+    color : string = "black"
+    grounded : boolean = false
+    walled : boolean = false
+    shielded : boolean = false
+    attacking : boolean = false
+    canAttack : boolean = false
+    canJump : boolean = false
+    canShield : boolean = false
+
+    attackingTime : number = 0
+    remainingShield : number = 0
+
+    readonly JUMP_SPEED : number = 3 
+    readonly MOVE_SPEED : number = 3 
+    readonly DRAG : number = 3 
+    readonly ATTACK_RANGE : number = 3 
+    readonly ATTACK_IMPULSE : number = 3 
+    readonly ATTACK_TIME : number = 3 
+    readonly SHIELD_TIME : number = 3 
+    
     constructor(world, pos, color, players){
-        this.JUMP_SPEED = 3
-        this.SPEED = 2
-        this.RANGE = 70
-        this.IMPULSE = 0.1
-        this.DRAG = 5
-        this.SIDES = [
-            'UP',
-            'LEFT',
-            'DOWN',
-            'RIGHT'
-        ]
-        this.SHIELD_TIME = 0.5
-        this.ATTACK_TIME = 0.2
         this.players = players
         this.world = world
         this.color = color
         this.pos = pos
-        this.grounded = false
-        this.walled = false
-        this.shielded = false
-        this.attacking = false
-        this.attackingTime = 0
-        this.remainingShield = 0
-        this.canAttack = false
-        this.canJump = false
-        this.canShield = false
         this.vel = new Vector2D(0, 0)
         this.size = new Vector2D(20, 20)
-        this.keyboard = {}
-        this.mapping = {
-            'w':'jump',
-            'a':'left',
-            's':'down',
-            'd':'right',
-            'f':'attack',
-            'r':'shield'
-        }
         this.initListeners()
     }
 
     initListeners(){
         document.addEventListener('keydown',(ev)=>{
-            this.keyboard[this.mapping[ev.key]] = true
+            this.actions[this.mapping[ev.key]] = true
         })
         document.addEventListener('keyup',(ev)=>{
-            this.keyboard[this.mapping[ev.key]] = false
+            this.actions[this.mapping[ev.key]] = false
         })
     }
 
@@ -91,17 +109,17 @@ class Player{
             this.vel.x += this.DRAG * deltaTime
 
         //Process input
-        if(this.keyboard.left)
-            this.vel.x = Math.max(-this.SPEED, this.vel.x-this.SPEED)
-        if(this.keyboard.right)
-            this.vel.x = Math.min(this.SPEED, this.vel.x+this.SPEED)
-        if(this.keyboard.down)
-            this.vel.y = Math.min(this.SPEED, this.vel.y+this.SPEED)
+        if(this.actions.left)
+            this.vel.x = Math.max(-this.MOVE_SPEED, this.vel.x-this.MOVE_SPEED)
+        if(this.actions.right)
+            this.vel.x = Math.min(this.MOVE_SPEED, this.vel.x+this.MOVE_SPEED)
+        if(this.actions.down)
+            this.vel.y = Math.min(this.MOVE_SPEED, this.vel.y+this.MOVE_SPEED)
 
-        if(this.keyboard.jump){
+        if(this.actions.jump){
             if(this.grounded){
                 this.vel.y = -this.JUMP_SPEED
-                this.keyboard.jump = false
+                this.actions.jump = false
             }
             else if(this.canJump)
             {
@@ -111,15 +129,15 @@ class Player{
             else if(this.walled){
                 this.vel.y = -this.JUMP_SPEED
                 //Inverted speed direction
-                if(this.keyboard.left)
+                if(this.actions.left)
                     this.vel.x = this.JUMP_SPEED
-                else if(this.keyboard.right)
+                else if(this.actions.right)
                     this.vel.x = -this.JUMP_SPEED
-                this.keyboard.jump = false
+                this.actions.jump = false
             }   
         }
 
-        if(this.keyboard.attack && !this.shielded && !this.grounded &&!this.walled){
+        if(this.actions.attack && !this.shielded && !this.grounded &&!this.walled){
             if(this.canAttack)
             {
                 this.attacking = true
@@ -128,14 +146,14 @@ class Player{
                     {
                         let impactVec = player.pos.copy()
                         impactVec.substract(this.pos)
-                        impactVec.mul(this.IMPULSE)
+                        impactVec.mul(this.ATTACK_IMPULSE)
                         player.vel.set(impactVec.x, impactVec.y)
                     }
                 }
                 this.canAttack = false
             }
         }
-        if(this.keyboard.shield && !this.attacking &&!this.grounded &&!this.walled)
+        if(this.actions.shield && !this.attacking &&!this.grounded &&!this.walled)
         {
             if(this.canShield)
             {
@@ -206,7 +224,7 @@ class Player{
     atRange(target){
         let targetVec = target.pos.copy()
         targetVec.substract(this.pos)
-        let rangeSqr = this.RANGE*this.RANGE
+        let rangeSqr = this.ATTACK_RANGE*this.ATTACK_RANGE
         return (targetVec.x*targetVec.x + targetVec.y*targetVec.y < rangeSqr)
     }
 

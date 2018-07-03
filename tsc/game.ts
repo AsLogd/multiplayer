@@ -1,10 +1,15 @@
-class Game{
-    /*
-        canvas : canvas element
-        ctx : context2d
-        players : Player[]
-        world : Wall[]
-    */
+import {Player} from "./player"
+import {Wall} from "./wall"
+import {World} from "./world"
+import {Vector2D} from "./vector2d"
+
+export class Game{
+    canvas : HTMLCanvasElement
+    ctx : CanvasRenderingContext2D
+    players : Player[]
+    world : World
+    preTickTmstp : number = 0
+    
     constructor(){
         this.canvas = document.createElement('canvas')
         this.canvas.width = window.innerWidth
@@ -46,20 +51,16 @@ class Game{
             )
         )
         this.preTickTmstp = Date.now()
-        requestAnimationFrame(()=>{
-            this.tick()
-        })
+        requestAnimationFrame(this.tick)
     }
 
-    tick(){
+    tick = ()=>{
         let deltaTime = (Date.now() - this.preTickTmstp)/1000
         this.preTickTmstp = Date.now()
         this.update(deltaTime)
         this.render()
 
-        requestAnimationFrame(()=>{
-            this.tick()
-        })
+        requestAnimationFrame(this.tick)
     }
 
     update(deltaTime){

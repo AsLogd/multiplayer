@@ -4,6 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "prebuild": "rm -Rf dist && mkdir -p dist/js",
+    "build": "npm-run-all build:*",
+    "build:compile": "tsc -m 'commonjs' --outDir ./temp ./tsc/main.ts && cp index.html dist/index.html",
+    "build:bundle": "browserify temp/main.js > dist/js/bundle.js",
+    "postbuild":"rm -Rf temp",
+    "serve": "http-server dist",
+    "watch": "npm run build && chokidar tsc/**/* -c 'npm run build && npm run serve'",
+    "clean": "rm -Rf dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,5 +25,12 @@
     "url": "https://github.com/AsLogd/multiplayer/issues"
   },
   "homepage": "https://github.com/AsLogd/multiplayer#readme",
-  "dependencies": {}
+  "dependencies": {
+    "browserify": "^16.2.2",
+    "chokidar-cli": "^1.2.0"
+  },
+  "devDependencies": {
+    "chokidar": "^2.0.4",
+    "npm-run-all": "^4.1.3"
+  }
 }
