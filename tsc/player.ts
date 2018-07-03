@@ -103,7 +103,11 @@ export class Player{
     update(deltaTime){
         //Apply gravity
         this.vel.y += this.world.gravity * deltaTime
-        if(this.vel.x > 0)
+        
+        //Aply drag
+        if(Math.abs(this.vel.x) < 0.01)
+            this.vel.x = 0
+        else if(this.vel.x > 0)
             this.vel.x -= this.DRAG * deltaTime
         else if(this.vel.x < 0)
             this.vel.x += this.DRAG * deltaTime
