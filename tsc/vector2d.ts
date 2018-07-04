@@ -1,4 +1,4 @@
-export class Vector2D{
+export default class Vector2D{
     x : number
     y : number
 
@@ -28,6 +28,15 @@ export class Vector2D{
 
     copy() : Vector2D{
         return new Vector2D(this.x, this.y)
+    }
+
+    serialize(){
+        return {x:this.x, y:this.y}
+    }
+
+    fromData(data){
+        this.x = data.x
+        this.y = data.y
     }
 
     static dot(a, b) : number{

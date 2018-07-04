@@ -1,13 +1,13 @@
-import {Vector2D} from "./vector2d"
+import Vector2D from "./vector2d"
+import Entity from "./entity"
 
-export class Wall{
-    pos : Vector2D
+export default class Wall extends Entity{
     size : Vector2D
     color : string
     
     constructor(color, pos, size){
+        super(pos)
         this.color = color
-        this.pos = pos
         this.size = size
     }
 

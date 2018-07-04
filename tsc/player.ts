@@ -1,5 +1,6 @@
-import {Vector2D} from "./vector2d"
-import {World} from "./world"
+import Vector2D from "./vector2d"
+import World from "./world"
+import Entity from "./entity"
 
 enum Direction{
     'UP' = 0,
@@ -17,11 +18,9 @@ enum Action{
     'SHIELD'
 }
 
-export class Player{
-    pos : Vector2D
+export default class Player extends Entity{
     vel : Vector2D
     size : Vector2D
-    players: Player[]
     world: World
 
     //{action:bool}
@@ -55,11 +54,10 @@ export class Player{
     readonly ATTACK_TIME : number = 3 
     readonly SHIELD_TIME : number = 3 
     
-    constructor(world, pos, color, players){
-        this.players = players
+    constructor(world, pos, color){
+        super(pos)
         this.world = world
         this.color = color
-        this.pos = pos
         this.vel = new Vector2D(0, 0)
         this.size = new Vector2D(20, 20)
         this.initListeners()
@@ -103,7 +101,7 @@ export class Player{
     update(deltaTime){
         //Apply gravity
         this.vel.y += this.world.gravity * deltaTime
-        
+
         //Aply drag
         if(Math.abs(this.vel.x) < 0.01)
             this.vel.x = 0
@@ -145,7 +143,7 @@ export class Player{
             if(this.canAttack)
             {
                 this.attacking = true
-                for(let player of this.players){
+                for(let player of this.world.players){
                     if(player !== this && !player.shielded && this.atRange(player))
                     {
                         let impactVec = player.pos.copy()
@@ -183,7 +181,6 @@ export class Player{
         let lastPos = this.pos.copy()
         //Check collisions on Y
         this.pos.y += this.vel.y
-        
         for(let wall of this.world.walls)
         {
             if(this.collides(wall))
@@ -237,6 +234,41 @@ export class Player{
             b.pos.x + b.size.x/2 < this.pos.x - this.size.x/2 ||
             this.pos.y + this.size.y/2 < b.pos.y - b.size.y/2 ||
             b.pos.y + b.size.y/2 < this.pos.y - this.size.y/2)
+    }
+
+    serialize(){
+        let s = {
+            vel : this.vel.serialize(),
+            size : this.size.serialize(),
+            actions: this.actions,
+            color : this.color,
+            grounded : this.grounded,
+            walled : this.walled,
+            shielded : this.shielded,
+            attacking : this.attacking,
+            canAttack : this.canAttack,
+            canJump : this.canJump,
+            canShield : this.canShield,
+            attackingTime : this.attackingTime,
+            remainingShield : this.remainingShield
+        }
+        return s
+    }
+
+    fromData(data){
+        this.vel.fromData(data.vel)
+        this.size.fromData(data.size)
+        this.actions = data.actions
+        this.color = data.color
+        this.grounded = data.grounded
+        this.walled = data.walled
+        this.shielded = data.shielded
+        this.attacking = data.attacking
+        this.canAttack = data.canAttack
+        this.canJump = data.canJump
+        this.canShield = data.canShield
+        this.attackingTime = data.attackingTime
+        this.remainingShield = data.remainingShield
     }
 
 }

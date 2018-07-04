@@ -1,12 +1,11 @@
-import {Player} from "./player"
-import {Wall} from "./wall"
-import {World} from "./world"
-import {Vector2D} from "./vector2d"
+import Player from "./player"
+import Wall from "./wall"
+import World from "./world"
+import Vector2D from "./vector2d"
 
-export class Game{
+export default class Game{
     canvas : HTMLCanvasElement
     ctx : CanvasRenderingContext2D
-    players : Player[]
     world : World
     preTickTmstp : number = 0
     
@@ -33,21 +32,11 @@ export class Game{
                 new Vector2D(50, 10)
             )
         ])
-        this.players = []
-        this.players.push(
+        this.world.addPlayer(
             new Player(
                 this.world,
                 new Vector2D(300,200), 
-                "red",
-                this.players
-            )
-        )
-        this.players.push(
-            new Player(
-                this.world,
-                new Vector2D(350,200), 
-                "blue",
-                this.players
+                "red"
             )
         )
         this.preTickTmstp = Date.now()
@@ -64,7 +53,7 @@ export class Game{
     }
 
     update(deltaTime){
-        for(let player of this.players){
+        for(let player of this.world.players){
             player.update(deltaTime)
         }
     }
@@ -72,13 +61,18 @@ export class Game{
     render(){
         this.clear()
         this.world.draw(this.ctx)
-        for(let player of this.players){
-            player.draw(this.ctx)
-        }
     }
 
     clear(){
         this.ctx.fillStyle = 'white'
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+    }
+
+    serialize(){
+        return this.world.serialize()
+    }
+
+    fromData(data){
+        this.world.fromData(data)
     }
 }
