@@ -8,13 +8,9 @@ export default class Game{
     ctx : CanvasRenderingContext2D
     world : World
     preTickTmstp : number = 0
-    
-    constructor(){
-        this.canvas = document.createElement('canvas')
-        this.canvas.width = window.innerWidth
-        this.canvas.height = window.innerHeight
-        document.body.appendChild(this.canvas)
-        this.ctx = this.canvas.getContext('2d')
+    isServer :boolean
+    constructor(isServer?){
+        this.isServer = isServer || false
         this.world = new World(3, [
             new Wall(
                 'black', 
@@ -32,15 +28,17 @@ export default class Game{
                 new Vector2D(50, 10)
             )
         ])
-        this.world.addPlayer(
-            new Player(
-                this.world,
-                new Vector2D(300,200), 
-                "red"
-            )
-        )
-        this.preTickTmstp = Date.now()
-        requestAnimationFrame(this.tick)
+        if(!this.isServer)
+        {
+            this.canvas = document.createElement('canvas')
+            this.canvas.width = window.innerWidth
+            this.canvas.height = window.innerHeight
+            document.body.appendChild(this.canvas)
+            this.ctx = this.canvas.getContext('2d')
+            this.preTickTmstp = Date.now()
+            requestAnimationFrame(this.tick)
+            
+        }
     }
 
     tick = ()=>{
@@ -50,6 +48,12 @@ export default class Game{
         this.render()
 
         requestAnimationFrame(this.tick)
+    }
+    
+    serverTick = ()=>{
+        let deltaTime = (Date.now() - this.preTickTmstp)/1000
+        this.preTickTmstp = Date.now()
+        this.update(deltaTime)
     }
 
     update(deltaTime){

@@ -39,7 +39,7 @@ export default class World{
     }
     fromData(data){
         for(let pd of data.players){
-            this.players.fromData(pd)
+            pd.fromData(pd)
         }
     }
 }

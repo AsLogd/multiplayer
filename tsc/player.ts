@@ -22,7 +22,7 @@ export default class Player extends Entity{
     vel : Vector2D
     size : Vector2D
     world: World
-
+    id :number
     //{action:bool}
     actions: any = {}
     //{key:action}
@@ -54,7 +54,7 @@ export default class Player extends Entity{
     readonly ATTACK_TIME : number = 3 
     readonly SHIELD_TIME : number = 3 
     
-    constructor(world, pos, color){
+    constructor(id, world, pos, color){
         super(pos)
         this.world = world
         this.color = color
@@ -238,6 +238,7 @@ export default class Player extends Entity{
 
     serialize(){
         let s = {
+            id : this.id,
             vel : this.vel.serialize(),
             size : this.size.serialize(),
             actions: this.actions,
@@ -256,6 +257,7 @@ export default class Player extends Entity{
     }
 
     fromData(data){
+        this.id = data.id
         this.vel.fromData(data.vel)
         this.size.fromData(data.size)
         this.actions = data.actions
