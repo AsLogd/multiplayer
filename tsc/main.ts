@@ -2,12 +2,12 @@ import Game from "./game"
 
 declare const io:any
 document.addEventListener("DOMContentLoaded", ()=>{
-    let g = new Game()
     const socket = io()
-    socket.on('connected', (data)=>{
-
-    })
-    socket.on('state', (newState)=>{
-    	g.fromData(newState)
+    let g = new Game(false, socket)
+    socket.on('state', g.reconcileState)
+    socket.on('sync-pong', g.syncPong)
+    socket.on('connected', ()=>{
+    	g.syncPing()
+    	socket.emit('sync-ping')
     })
 })

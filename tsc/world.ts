@@ -5,12 +5,13 @@ export default class World{
     gravity: number
     walls: Wall[]
     players: Player[]
-    constructor(gravity, walls){
+    constructor(gravity:number, walls:Wall[]){
         this.gravity = gravity
         this.walls = walls
+        this.players = []
     }
 
-    draw(ctx){
+    draw(ctx:CanvasRenderingContext2D){
         for(let wall of this.walls)
         {
             wall.draw(ctx)
@@ -27,7 +28,7 @@ export default class World{
     }
 
     serialize(){
-        let s ={
+        let s:any ={
             players: []
         }
 
@@ -37,9 +38,21 @@ export default class World{
         }
         return s
     }
-    fromData(data){
-        for(let pd of data.players){
-            pd.fromData(pd)
+    fromData(data:any){
+        for(let pdata of data.players){
+            let found = false
+            let ps = this.players
+            for(let i = 0; i < ps.length && !found; i++){
+                if(ps[i].id == pdata.id){
+                    ps[i].fromData(pdata)
+                    found = true
+                }
+            }
+            if(!found){
+                let p = new Player(pdata.id, this)
+                p.fromData(pdata)
+                this.players.push(p)
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 import Vector2D from "./vector2d"
 import World from "./world"
-import Entity from "./entity"
+import Wall from "./wall"
 
 enum Direction{
     'UP' = 0,
@@ -18,11 +18,12 @@ enum Action{
     'SHIELD'
 }
 
-export default class Player extends Entity{
+export default class Player {
+    pos : Vector2D
     vel : Vector2D
     size : Vector2D
     world: World
-    id :number
+    id :string
     //{action:bool}
     actions: any = {}
     //{key:action}
@@ -54,25 +55,27 @@ export default class Player extends Entity{
     readonly ATTACK_TIME : number = 3 
     readonly SHIELD_TIME : number = 3 
     
-    constructor(id, world, pos, color){
-        super(pos)
+    constructor(id="-1", world:World, pos=(new Vector2D(0,0)), color="black"){
+        this.pos = pos
+        this.id = id
         this.world = world
         this.color = color
         this.vel = new Vector2D(0, 0)
         this.size = new Vector2D(20, 20)
-        this.initListeners()
     }
 
     initListeners(){
         document.addEventListener('keydown',(ev)=>{
+            console.log("keydown")
             this.actions[this.mapping[ev.key]] = true
         })
         document.addEventListener('keyup',(ev)=>{
+            console.log("keyup")
             this.actions[this.mapping[ev.key]] = false
         })
     }
 
-    draw(ctx){
+    draw(ctx:CanvasRenderingContext2D){
         ctx.fillStyle = this.color
         ctx.fillRect(
             this.pos.x-this.size.x/2, 
@@ -98,9 +101,9 @@ export default class Player extends Entity{
         
     }
 
-    update(deltaTime){
+    update(deltaTime:number){
         //Apply gravity
-        this.vel.y += this.world.gravity * deltaTime
+        this.vel.y = Math.min(this.MOVE_SPEED, this.vel.y+this.world.gravity * deltaTime)
 
         //Aply drag
         if(Math.abs(this.vel.x) < 0.01)
@@ -222,23 +225,24 @@ export default class Player extends Entity{
 
     }
 
-    atRange(target){
+    atRange(target:Player){
         let targetVec = target.pos.copy()
         targetVec.substract(this.pos)
         let rangeSqr = this.ATTACK_RANGE*this.ATTACK_RANGE
         return (targetVec.x*targetVec.x + targetVec.y*targetVec.y < rangeSqr)
     }
 
-    collides(b){
+    collides(b:Wall):boolean{
         return !(this.pos.x + this.size.x/2 < b.pos.x - b.size.x/2 ||
             b.pos.x + b.size.x/2 < this.pos.x - this.size.x/2 ||
             this.pos.y + this.size.y/2 < b.pos.y - b.size.y/2 ||
             b.pos.y + b.size.y/2 < this.pos.y - this.size.y/2)
     }
 
-    serialize(){
+    serialize():any{
         let s = {
             id : this.id,
+            pos : this.pos.serialize(),
             vel : this.vel.serialize(),
             size : this.size.serialize(),
             actions: this.actions,
@@ -256,8 +260,9 @@ export default class Player extends Entity{
         return s
     }
 
-    fromData(data){
+    fromData(data:any){
         this.id = data.id
+        this.pos.fromData(data.pos)
         this.vel.fromData(data.vel)
         this.size.fromData(data.size)
         this.actions = data.actions

@@ -1,17 +1,17 @@
 import Vector2D from "./vector2d"
-import Entity from "./entity"
 
-export default class Wall extends Entity{
+export default class Wall{
+    pos : Vector2D
     size : Vector2D
     color : string
     
-    constructor(color, pos, size){
-        super(pos)
+    constructor(color:string, pos:Vector2D, size:Vector2D){
+        this.pos = pos
         this.color = color
         this.size = size
     }
 
-    draw(ctx){
+    draw(ctx:CanvasRenderingContext2D){
         ctx.fillStyle = this.color
         ctx.fillRect(
             this.pos.x-this.size.x/2, 
