@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prestart": "npm run build",
     "start": "node index.js",
     "prebuild": "rm -Rf dist && mkdir -p dist/js dist/public/js",
     "build": "npm-run-all build:*",
