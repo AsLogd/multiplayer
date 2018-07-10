@@ -39,6 +39,8 @@ export default class World{
         return s
     }
     fromData(data:any){
+        if(!data)
+            debugger
         for(let pdata of data.players){
             let found = false
             let ps = this.players

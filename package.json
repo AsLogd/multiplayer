@@ -11,7 +11,7 @@
     "build:compile": "tsc -m 'commonjs' -t 'es6' --outDir ./dist/server ./tsc/main.ts && cp index.html dist/public/index.html",
     "build:bundle": "browserify dist/server/main.js > dist/public/js/bundle.js",
     "serve": "http-server dist",
-    "watch": "npm run build && chokidar tsc/**/* -c 'npm run build && npm run serve'",
+    "watch": "npm run build && npm run start && chokidar tsc/**/* -c 'npm run build && npm run start'",
     "clean": "rm -Rf dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

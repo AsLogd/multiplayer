@@ -19,6 +19,7 @@ export default class Game{
     lastConfirmedTick : number = -1
     //Predicted state
     clientState : any
+    debug_clientState : any
     inputBuffer : any[] = []
 
     clientSocket: SocketIO.EngineSocket | undefined
@@ -64,10 +65,12 @@ export default class Game{
             setTimeout(this.tick, Constants.TICK_LENGTH)
             return
         }
+        //Here we have state, therefore we also have myPlayer
         let newInput = this.cloneJSON(this.myPlayer!.actions)
         this.clientSocket!.emit('input', newInput)
         newInput.tick = this.clientState.tick+1
         this.inputBuffer.push(newInput)
+        this.clientState = this.applyInput(this.clientState, newInput)
 
 
         setTimeout(this.tick, Constants.TICK_LENGTH)
@@ -79,10 +82,11 @@ export default class Game{
     */
     syncPing = ()=>{
         this.pingStart = Date.now()
+        this.clientSocket!.emit('sync-ping')
     }
 
     syncPong = ()=>{
-        let ping = this.pingStart - Date.now()
+        let ping = Date.now() - this.pingStart
         if(this.pingHistory.length < Constants.PING_BUFFER_LENGTH){
             this.pingHistory.push(ping)
         }
@@ -110,6 +114,20 @@ export default class Game{
         if(ping == Infinity || newState.tick <= this.lastConfirmedTick) 
             return
 
+        //Once we have the first server state,
+        //get a reference to our player and initialize inputs
+        if(!this.myPlayer)
+        {
+            this.clientState = this.cloneJSON(newState)
+            this.fromData(this.clientState)
+            this.myPlayer = this.world.players.find((item)=>{
+                return item.id.indexOf(this.clientSocket!.id) > -1
+            })
+            this.myPlayer!.initListeners()
+            this.inputBuffer = [this.myPlayer!.actions]
+
+        }
+
         //Last confirmed tick
         this.lastConfirmedTick = newState.tick
         let errorMargin = Math.min(10, Constants.TICK_LENGTH/2)
@@ -128,7 +146,8 @@ export default class Game{
             this.inputBuffer[0].tick <= newState.tick){
             this.inputBuffer.shift()
         }
-
+        if(this.clientState)
+            this.debug_clientState = this.cloneJSON(this.clientState)
         //Apply all inputs in the buffer
         //Here we are applying the inputs of the client,
         //and we can, at most, re-apply last inputs for other players
@@ -136,11 +155,15 @@ export default class Game{
             return this.applyInput(accState, currentInput)
         }, newState)
 
+        if(!this.clientState)
+            debugger
+
         //In case we need more inputs than we have, the client loses
         //ticks (which are projections from last tick)
         let remainingTicks = forwardTicks - this.inputBuffer.length
+        //Last applied actions (server+clientBuffer)
+        let lastInput = this.myPlayer!.actions
         while(remainingTicks > 0){
-            let lastInput = this.inputBuffer[this.inputBuffer.length-1]
             //Clone
             let newInput = this.cloneJSON(lastInput)
             newInput.tick++
@@ -149,6 +172,8 @@ export default class Game{
                 this.clientState, 
                 newInput
             )
+            if(!this.clientState)
+                debugger
             this.clientSocket!.emit('input',newInput)
             remainingTicks--
         }
@@ -156,14 +181,7 @@ export default class Game{
         //Update state
         this.fromData(this.clientState)
 
-        //Get a reference to our player
-        if(!this.myPlayer)
-        {
-            this.myPlayer = this.world.players.find((item)=>{
-                return item.id.indexOf(this.clientSocket!.id) > -1
-            })
-            this.myPlayer!.initListeners()
-        }
+        
 
     }
 
@@ -172,20 +190,25 @@ export default class Game{
     }
 
     applyInput = (state:any, input:any)=>{
+        let previousState = this.serialize()
+        this.fromData(state)
         for(let player of this.world.players){
             if(this.clientSocket!.id.indexOf(player.id+"") > -1)
             {
                 player.actions = input
             }
-            player.update(Constants.TICK_LENGTH)
+            player.update(Constants.TICK_LENGTH/1000)
         }
         state.tick = input.tick
+        let resultState = this.serialize()
+        this.fromData(previousState)
+        return resultState
     }
 
     serverTick = ()=>{
         //this.update(Constants.TICK_LENGTH)
         for(let player of this.world.players){
-            player.update(Constants.TICK_LENGTH)
+            player.update(Constants.TICK_LENGTH/1000)
         }
     }
 

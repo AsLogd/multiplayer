@@ -25,7 +25,15 @@ export default class Player {
     world: World
     id :string
     //{action:bool}
-    actions: any = {}
+    actions: any = {
+        'tick': 0,
+        'jump': false,
+        'left': false,
+        'down': false,
+        'right': false,
+        'attack': false,
+        'shield': false
+    }
     //{key:action}
     mapping: any = {
         'w':'jump',
@@ -47,9 +55,9 @@ export default class Player {
     attackingTime : number = 0
     remainingShield : number = 0
 
-    readonly JUMP_SPEED : number = 3 
-    readonly MOVE_SPEED : number = 3 
-    readonly DRAG : number = 3 
+    readonly JUMP_SPEED : number = 1
+    readonly MOVE_SPEED : number = 1 
+    readonly DRAG : number = 1 
     readonly ATTACK_RANGE : number = 3 
     readonly ATTACK_IMPULSE : number = 3 
     readonly ATTACK_TIME : number = 3 

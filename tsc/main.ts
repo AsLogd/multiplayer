@@ -8,6 +8,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
     socket.on('sync-pong', g.syncPong)
     socket.on('connected', ()=>{
     	g.syncPing()
-    	socket.emit('sync-ping')
+    	
     })
 })

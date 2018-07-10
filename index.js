@@ -28,8 +28,10 @@ function serverTick(){
 	t++
 	state.tick = t
 	io.sockets.emit('state', state)
+	/*
 	if(t % 30 == 0)
 		console.log(JSON.stringify(state))
+	*/
 	setTimeout(serverTick, Constants.TICK_LENGTH)
 }
 
@@ -40,7 +42,6 @@ let playerTest = new Player(
 	"red"
 )
 g.world.addPlayer(playerTest)
-serverTick()
 /*
 console.log(JSON.stringify(g.serialize()))
 serverTick()
@@ -82,7 +83,7 @@ io.on('connection', (socket)=>{
 	})
 	
 	socket.on('sync-ping', ()=>{
-		console.log('received ping')
 		socket.emit('sync-pong')
 	})
+	serverTick()
 })
